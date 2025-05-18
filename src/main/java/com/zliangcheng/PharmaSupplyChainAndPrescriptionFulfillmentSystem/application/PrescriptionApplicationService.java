@@ -1,5 +1,6 @@
 package com.zliangcheng.PharmaSupplyChainAndPrescriptionFulfillmentSystem.application;
 
+import com.zliangcheng.PharmaSupplyChainAndPrescriptionFulfillmentSystem.aspect.AuditLogEnable;
 import com.zliangcheng.PharmaSupplyChainAndPrescriptionFulfillmentSystem.controller.request.CreatePrescriptionRequest;
 import com.zliangcheng.PharmaSupplyChainAndPrescriptionFulfillmentSystem.controller.response.PrescriptionResponse;
 import com.zliangcheng.PharmaSupplyChainAndPrescriptionFulfillmentSystem.model.Drug;
@@ -11,11 +12,12 @@ import com.zliangcheng.PharmaSupplyChainAndPrescriptionFulfillmentSystem.reposit
 import com.zliangcheng.PharmaSupplyChainAndPrescriptionFulfillmentSystem.repository.PrescriptionRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Objects;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class PrescriptionApplicationService {
@@ -23,9 +25,9 @@ public class PrescriptionApplicationService {
     private final DrugRepository drugRepository;
     private final PharmacyRepository pharmacyRepository;
 
-    @Transactional
+    @AuditLogEnable
     public PrescriptionResponse create(CreatePrescriptionRequest request) {
-        Prescription prescription = new Prescription(request.getPharmacyId(), request.getDrugs());
+        Prescription prescription = new Prescription(request.getPharmacyId(), request.getDrugs(), request.getPatientId());
         String errorMessage = "";
         ResponseStatus status = ResponseStatus.SUCCESS;
 
@@ -40,6 +42,7 @@ public class PrescriptionApplicationService {
                 pharmacy.validateDrugQuantities(drug, quantity);
             });
         } catch (Exception exception) {
+            log.error("e: ", exception);
             prescription.invalid();
             status = ResponseStatus.FAILED;
             errorMessage = exception.getMessage();
@@ -49,7 +52,7 @@ public class PrescriptionApplicationService {
         return PrescriptionResponse.from(prescription, errorMessage, status);
     }
 
-    @Transactional
+    @AuditLogEnable
     public PrescriptionResponse fulfill(String prescriptionId) {
         Prescription prescription = prescriptionRepository.findById(Long.valueOf(prescriptionId)).orElse(null);
         if (Objects.isNull(prescription)) {
@@ -77,6 +80,7 @@ public class PrescriptionApplicationService {
             prescription.fulfill();
             prescriptionRepository.save(prescription);
         } catch (Exception exception) {
+            log.error("e: ", exception);
             errorMessage = exception.getMessage();
             status = ResponseStatus.FAILED;
             prescription.invalid();

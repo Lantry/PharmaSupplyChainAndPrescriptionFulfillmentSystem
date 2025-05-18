@@ -16,5 +16,8 @@ public class CreatePrescriptionRequest {
     @NotBlank(message = "pharmacy id can not be blank")
     private String pharmacyId;
 
+    @NotBlank(message = "patient id can not be blank")
+    private String patientId;
+
     private Map<Long, Integer> drugs;
 }

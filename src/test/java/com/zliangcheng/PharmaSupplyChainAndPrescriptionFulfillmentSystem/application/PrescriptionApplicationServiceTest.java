@@ -40,7 +40,7 @@ class PrescriptionApplicationServiceTest {
     void givenNotFoundDrugWhenCreateThenThrowError() {
         // given
         when(drugRepository.findById(1L)).thenReturn(Optional.empty());
-        CreatePrescriptionRequest request = new CreatePrescriptionRequest("1", Map.of(1L, 40));
+        CreatePrescriptionRequest request = new CreatePrescriptionRequest("1", "1", Map.of(1L, 40));
         when(prescriptionRepository.save(any(Prescription.class))).thenAnswer(invocation -> {
             Prescription save = invocation.getArgument(0);
             save.setId(4L);
@@ -61,7 +61,7 @@ class PrescriptionApplicationServiceTest {
         when(drugRepository.findById(1L)).thenReturn(Optional.of(createDrug(drugId)));
         when(pharmacyRepository.findById(2L)).thenReturn(Optional.empty());
 
-        CreatePrescriptionRequest request = new CreatePrescriptionRequest("2", Map.of(1L, 40));
+        CreatePrescriptionRequest request = new CreatePrescriptionRequest("2", "1", Map.of(1L, 40));
         when(prescriptionRepository.save(any(Prescription.class))).thenAnswer(invocation -> {
             Prescription save = invocation.getArgument(0);
             save.setId(4L);
@@ -81,7 +81,7 @@ class PrescriptionApplicationServiceTest {
         Long drugId = 1L;
         when(drugRepository.findById(1L)).thenReturn(Optional.of(createDrug(drugId)));
 
-        CreatePrescriptionRequest request = new CreatePrescriptionRequest("2", Map.of(1L, 100));
+        CreatePrescriptionRequest request = new CreatePrescriptionRequest("2", "1", Map.of(1L, 100));
         when(prescriptionRepository.save(any(Prescription.class))).thenAnswer(invocation -> {
             Prescription save = invocation.getArgument(0);
             save.setId(4L);
@@ -103,7 +103,7 @@ class PrescriptionApplicationServiceTest {
         when(drugRepository.findById(1L)).thenReturn(Optional.of(createDrug(drugId)));
         when(pharmacyRepository.findById(2L)).thenReturn(Optional.of(createPharmacy(pharmacyId, drugId)));
 
-        CreatePrescriptionRequest request = new CreatePrescriptionRequest("2", Map.of(1L, 10));
+        CreatePrescriptionRequest request = new CreatePrescriptionRequest("2", "1", Map.of(1L, 10));
         when(prescriptionRepository.save(any(Prescription.class))).thenAnswer(invocation -> {
             Prescription save = invocation.getArgument(0);
             save.setId(4L);

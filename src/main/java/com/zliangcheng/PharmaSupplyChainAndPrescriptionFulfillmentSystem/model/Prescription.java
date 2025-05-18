@@ -33,13 +33,14 @@ public class Prescription {
     @Enumerated(EnumType.STRING)
     private PrescriptionStatus status;
 
-    @Column(length = 1000)
-    private String errorMessage;
+    @Column(nullable = false)
+    private String patientId;
 
-    public Prescription(String pharmacyId, Map<Long, Integer> drugs) {
+    public Prescription(String pharmacyId, Map<Long, Integer> drugs, String patient) {
         this.pharmacyId = Long.valueOf(pharmacyId);
         this.drugs = drugs;
         this.status = PrescriptionStatus.PENDING;
+        this.patientId = patient;
     }
 
     public void fulfill() {
@@ -47,7 +48,9 @@ public class Prescription {
     }
 
     public void invalid() {
-        this.status = PrescriptionStatus.REJECTED;
+        if (status.equals(PrescriptionStatus.PENDING)) {
+            this.status = PrescriptionStatus.REJECTED;
+        }
     }
 
     public void validateOrderForFulfillment() {

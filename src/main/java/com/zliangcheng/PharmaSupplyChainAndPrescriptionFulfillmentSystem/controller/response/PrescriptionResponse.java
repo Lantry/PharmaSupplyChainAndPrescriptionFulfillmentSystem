@@ -7,32 +7,34 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.List;
+import java.util.Map;
 
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class PrescriptionResponse {
-    private List<String> drugIds;
+    private Map<Long, Integer> drugIds;
     private String pharmacyId;
     private String prescriptionId;
+    private String patientId;
     private ResponseStatus status;
     private String errorMessage;
 
     public static PrescriptionResponse from(Prescription prescription, String errorMessage, ResponseStatus status) {
-        List<String> drugIds = prescription.getDrugs().keySet().stream().map(String::valueOf).toList();
-        return new PrescriptionResponse(drugIds,
+        return new PrescriptionResponse(prescription.getDrugs(),
                 prescription.getPharmacyId().toString(),
                 prescription.getId().toString(),
+                prescription.getPatientId(),
                 status,
                 errorMessage);
     }
 
     public static PrescriptionResponse emptyPrescription(String prescriptionId) {
-        return new PrescriptionResponse(List.of(),
+        return new PrescriptionResponse(Map.of(),
                 "",
                 prescriptionId,
+                "",
                 ResponseStatus.FAILED,
                 "Prescription not found with ID: " + prescriptionId);
     }
