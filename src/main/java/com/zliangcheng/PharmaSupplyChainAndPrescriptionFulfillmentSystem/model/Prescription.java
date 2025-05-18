@@ -1,5 +1,6 @@
 package com.zliangcheng.PharmaSupplyChainAndPrescriptionFulfillmentSystem.model;
 
+import com.zliangcheng.PharmaSupplyChainAndPrescriptionFulfillmentSystem.exception.PrescriptionInvalidException;
 import com.zliangcheng.PharmaSupplyChainAndPrescriptionFulfillmentSystem.utils.MapToJsonConverter;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -47,5 +48,11 @@ public class Prescription {
 
     public void invalid() {
         this.status = PrescriptionStatus.REJECTED;
+    }
+
+    public void validateOrderForFulfillment() {
+        if (!status.equals(PrescriptionStatus.PENDING)) {
+            throw new PrescriptionInvalidException(id, status.getDescription());
+        }
     }
 }

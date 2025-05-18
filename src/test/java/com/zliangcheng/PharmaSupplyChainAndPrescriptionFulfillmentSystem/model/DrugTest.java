@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 class DrugTest {
 
@@ -18,11 +19,11 @@ class DrugTest {
         // when
         Drug drug = Drug.from(request);
         // then
-        assert "testName".equals(drug.getName());
-        assert "manufacturer".equals(drug.getManufacturer());
-        assert "N110".equals(drug.getBatchNumber());
-        assert now.equals(drug.getExpiryDate());
-        assert drug.getStock().equals(0);
+        assertEquals("testName", drug.getName());
+        assertEquals("manufacturer", drug.getManufacturer());
+        assertEquals("N110", drug.getBatchNumber());
+        assertEquals(now, drug.getExpiryDate());
+        assertEquals(0, drug.getStock());
     }
 
     @Test
@@ -36,7 +37,7 @@ class DrugTest {
         // when
         DrugExpiryException expiryException = assertThrows(DrugExpiryException.class, () -> drug.validateDrug(10));
         // then
-        assert expiryException.getMessage().equals(String.format("药品已过期 [药品ID: %d, 过期时间: %s]", 1, expiryDate));
+        assertEquals(expiryException.getMessage(), String.format("药品已过期 [药品ID: %d, 过期时间: %s]", 1, expiryDate));
     }
 
     @Test
@@ -50,6 +51,6 @@ class DrugTest {
         // when
         DrugInsufficientStockException insufficientStockException = assertThrows(DrugInsufficientStockException.class, () -> drug.validateDrug(100));
         // then
-        assert insufficientStockException.getMessage().equals(String.format("药品库存不足 [药品ID: %d]", 1));
+        assertEquals(insufficientStockException.getMessage(), String.format("药品库存不足 [药品ID: %d]", 1));
     }
 }

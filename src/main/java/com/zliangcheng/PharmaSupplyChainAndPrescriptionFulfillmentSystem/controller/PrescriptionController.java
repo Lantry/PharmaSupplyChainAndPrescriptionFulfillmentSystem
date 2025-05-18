@@ -17,8 +17,8 @@ public class PrescriptionController {
         return applicationService.create(request);
     }
 
-    @PostMapping("/{id}/fulfill")
-    public void fulfillPrescription(@PathVariable(name = "id") String id) {
-        applicationService.fulfill(id);
+    @PostMapping("/{id}/fulfillment")
+    public PrescriptionResponse fulfillPrescription(@PathVariable(name = "id") String id) {
+        return applicationService.fulfill(id);
     }
 }

@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
@@ -42,8 +43,8 @@ class DrugAndPharmacyApplicationServiceTest {
         // when
         AddDrugsResponse res = drugAndPharmacyApplicationService.addDrugs(request);
         // then
-        assert "testName".equals(res.getName());
-        assert res.getStock().equals(50);
+        assertEquals("testName", res.getName());
+        assertEquals(50, res.getStock());
     }
 
     @Test
@@ -60,8 +61,8 @@ class DrugAndPharmacyApplicationServiceTest {
         // when
         AddDrugsResponse res = drugAndPharmacyApplicationService.addDrugs(request);
         // then
-        assert "testName".equals(res.getName());
-        assert res.getStock().equals(90);
+        assertEquals("testName", res.getName());
+        assertEquals(90, res.getStock());
     }
 
     @Test
@@ -78,9 +79,9 @@ class DrugAndPharmacyApplicationServiceTest {
         List<PharmacyInfoResponse> res = drugAndPharmacyApplicationService.listPharmacies();
         // then
         PharmacyInfoResponse infoResponse = res.get(0);
-        assert res.size() == 1;
-        assert "testPharmacy".equals(infoResponse.getPharmacyName());
-        assert "address".equals(infoResponse.getPharmacyAdd());
-        assert infoResponse.getDrugsInfo().get("testName").equals(50);
+        assertEquals(1, res.size());
+        assertEquals("testPharmacy", infoResponse.getPharmacyName());
+        assertEquals("address", infoResponse.getPharmacyAdd());
+        assertEquals(50, infoResponse.getDrugsInfo().get("testName"));
     }
 }

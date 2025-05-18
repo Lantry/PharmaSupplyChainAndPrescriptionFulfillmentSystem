@@ -2,10 +2,7 @@ package com.zliangcheng.PharmaSupplyChainAndPrescriptionFulfillmentSystem.applic
 
 import com.zliangcheng.PharmaSupplyChainAndPrescriptionFulfillmentSystem.controller.request.CreatePrescriptionRequest;
 import com.zliangcheng.PharmaSupplyChainAndPrescriptionFulfillmentSystem.controller.response.PrescriptionResponse;
-import com.zliangcheng.PharmaSupplyChainAndPrescriptionFulfillmentSystem.model.Drug;
-import com.zliangcheng.PharmaSupplyChainAndPrescriptionFulfillmentSystem.model.Pharmacy;
-import com.zliangcheng.PharmaSupplyChainAndPrescriptionFulfillmentSystem.model.Prescription;
-import com.zliangcheng.PharmaSupplyChainAndPrescriptionFulfillmentSystem.model.ResponseStatus;
+import com.zliangcheng.PharmaSupplyChainAndPrescriptionFulfillmentSystem.model.*;
 import com.zliangcheng.PharmaSupplyChainAndPrescriptionFulfillmentSystem.repository.DrugRepository;
 import com.zliangcheng.PharmaSupplyChainAndPrescriptionFulfillmentSystem.repository.PharmacyRepository;
 import com.zliangcheng.PharmaSupplyChainAndPrescriptionFulfillmentSystem.repository.PrescriptionRepository;
@@ -16,9 +13,12 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDate;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
@@ -49,15 +49,16 @@ class PrescriptionApplicationServiceTest {
         // when
         PrescriptionResponse response = applicationService.create(request);
         // then
-        assert response.getStatus().equals(ResponseStatus.FAILED);
-        assert response.getErrorMessage().equals("Drug not found with ID: 1");
-        assert response.getPrescriptionId().equals("4");
+        assertEquals(ResponseStatus.FAILED, response.getStatus());
+        assertEquals("Drug not found with ID: 1", response.getErrorMessage());
+        assertEquals("4", response.getPrescriptionId());
     }
 
     @Test
     void givenNotFoundPharmacyWhenCreateThenThrowError() {
         // given
-        when(drugRepository.findById(1L)).thenReturn(Optional.of(createDrug()));
+        Long drugId = 1L;
+        when(drugRepository.findById(1L)).thenReturn(Optional.of(createDrug(drugId)));
         when(pharmacyRepository.findById(2L)).thenReturn(Optional.empty());
 
         CreatePrescriptionRequest request = new CreatePrescriptionRequest("2", Map.of(1L, 40));
@@ -69,16 +70,16 @@ class PrescriptionApplicationServiceTest {
         // when
         PrescriptionResponse response = applicationService.create(request);
         // then
-        assert response.getStatus().equals(ResponseStatus.FAILED);
-        assert response.getErrorMessage().equals("Pharmacy not found with ID: 2");
-        assert response.getPrescriptionId().equals("4");
+        assertEquals(ResponseStatus.FAILED, response.getStatus());
+        assertEquals("Pharmacy not found with ID: 2", response.getErrorMessage());
+        assertEquals("4", response.getPrescriptionId());
     }
 
     @Test
     void givenLargeQuantityWhenCreateThenThrowError() {
         // given
-
-        when(drugRepository.findById(1L)).thenReturn(Optional.of(createDrug()));
+        Long drugId = 1L;
+        when(drugRepository.findById(1L)).thenReturn(Optional.of(createDrug(drugId)));
 
         CreatePrescriptionRequest request = new CreatePrescriptionRequest("2", Map.of(1L, 100));
         when(prescriptionRepository.save(any(Prescription.class))).thenAnswer(invocation -> {
@@ -89,16 +90,18 @@ class PrescriptionApplicationServiceTest {
         // when
         PrescriptionResponse response = applicationService.create(request);
         // then
-        assert response.getStatus().equals(ResponseStatus.FAILED);
-        assert response.getErrorMessage().equals("药品库存不足 [药品ID: 1]");
-        assert response.getPrescriptionId().equals("4");
+        assertEquals(ResponseStatus.FAILED, response.getStatus());
+        assertEquals("药品库存不足 [药品ID: 1]", response.getErrorMessage());
+        assertEquals("4", response.getPrescriptionId());
     }
 
     @Test
-    void givenLargeQuantityWhenCreateThenSuccess() {
+    void givenNormalQuantityWhenCreateThenSuccess() {
         // given
-        when(drugRepository.findById(1L)).thenReturn(Optional.of(createDrug()));
-        when(pharmacyRepository.findById(2L)).thenReturn(Optional.of(createPharmacy()));
+        Long drugId = 1L;
+        Long pharmacyId = 2L;
+        when(drugRepository.findById(1L)).thenReturn(Optional.of(createDrug(drugId)));
+        when(pharmacyRepository.findById(2L)).thenReturn(Optional.of(createPharmacy(pharmacyId, drugId)));
 
         CreatePrescriptionRequest request = new CreatePrescriptionRequest("2", Map.of(1L, 10));
         when(prescriptionRepository.save(any(Prescription.class))).thenAnswer(invocation -> {
@@ -109,23 +112,67 @@ class PrescriptionApplicationServiceTest {
         // when
         PrescriptionResponse response = applicationService.create(request);
         // then
-        assert response.getStatus().equals(ResponseStatus.SUCCESS);
-        assert response.getErrorMessage().isEmpty();
-        assert response.getPrescriptionId().equals("4");
+        assertEquals(ResponseStatus.SUCCESS, response.getStatus());
+        assertTrue(response.getErrorMessage().isEmpty());
+        assertEquals("4", response.getPrescriptionId());
     }
 
-    private static Drug createDrug() {
+    @Test
+    void givenNormalPrescriptionIdWhenFulfillThenSuccess() {
+        // given
+        Long prescriptionId = 4L;
+        Long pharmacyId = 2L;
+        Long drugId = 1L;
+
+        when(drugRepository.findById(drugId)).thenReturn(Optional.of(createDrug(drugId)));
+        when(pharmacyRepository.findById(pharmacyId)).thenReturn(Optional.of(createPharmacy(pharmacyId, drugId)));
+        when(prescriptionRepository.findById(prescriptionId))
+                .thenReturn(Optional.of(createPrescription(prescriptionId, pharmacyId, drugId)));
+
+        // when
+        PrescriptionResponse response = applicationService.fulfill(String.valueOf(prescriptionId));
+        // then
+        assertEquals("", response.getErrorMessage());
+        assertEquals(ResponseStatus.SUCCESS, response.getStatus());
+    }
+
+    @Test
+    void givenNotFoundPrescriptionIdWhenFulfillThenSuccess() {
+        // given
+        when(prescriptionRepository.findById(4L)).thenReturn(Optional.empty());
+        // when
+        PrescriptionResponse response = applicationService.fulfill("4");
+        // then
+        assertEquals("4", response.getPrescriptionId());
+        assertEquals("Prescription not found with ID: 4", response.getErrorMessage());
+        assertEquals(ResponseStatus.FAILED, response.getStatus());
+    }
+
+    private static Drug createDrug(Long id) {
         Drug drug = new Drug();
-        drug.setId(1L);
+        drug.setId(id);
         drug.setStock(50);
         LocalDate expiryDate = LocalDate.MAX;
         drug.setExpiryDate(expiryDate);
         return drug;
     }
 
-    private static Pharmacy createPharmacy() {
+    private static Pharmacy createPharmacy(Long id, Long drugId) {
         Pharmacy pharmacy = new Pharmacy();
-        pharmacy.setDrugAllocations(Map.of(1L, 40));
+        pharmacy.setId(id);
+        Map<Long, Integer> drugAllocations = new HashMap<>();
+        drugAllocations.put(drugId, 40);
+        pharmacy.setDrugAllocations(drugAllocations);
         return pharmacy;
     }
+
+    private static Prescription createPrescription(Long prescriptionId, Long pharmacyId, Long drugId) {
+        Prescription prescription = new Prescription();
+        prescription.setId(prescriptionId);
+        prescription.setStatus(PrescriptionStatus.PENDING);
+        prescription.setPharmacyId(pharmacyId);
+        prescription.setDrugs(Map.of(drugId, 10));
+        return prescription;
+    }
+
 }

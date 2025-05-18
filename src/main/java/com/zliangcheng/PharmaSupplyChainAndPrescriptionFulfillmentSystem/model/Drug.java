@@ -63,4 +63,9 @@ public class Drug {
             throw new DrugInsufficientStockException(id);
         }
     }
+
+    public void deductStock(int quantity) {
+        validateDrug(quantity);
+        stock -= quantity;
+    }
 }

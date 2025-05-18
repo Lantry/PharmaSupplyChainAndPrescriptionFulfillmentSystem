@@ -27,7 +27,7 @@ class PharmacyTest {
         PharmacyException pharmacyException = assertThrows(PharmacyException.class, () -> pharmacy.validateDrugQuantities(drug, 30));
 
         // then
-        assert pharmacyException.getMessage().equals("药房无法分配药品 [药房ID: 2, 药品ID: 1]");
+        assertEquals("药房无法分配药品 [药房ID: 2, 药品ID: 1]", pharmacyException.getMessage());
     }
 
     @Test
@@ -47,6 +47,6 @@ class PharmacyTest {
         PharmacyException pharmacyException = assertThrows(PharmacyException.class, () -> pharmacy.validateDrugQuantities(drug, 30));
 
         // then
-        assert pharmacyException.getMessage().equals("药房无法分配药品 [药房ID: 2, 药品ID: 1]");
+        assertEquals("药房无法分配药品 [药房ID: 2, 药品ID: 1]", pharmacyException.getMessage());
     }
 }
