@@ -2,6 +2,7 @@ package com.zliangcheng.PharmaSupplyChainAndPrescriptionFulfillmentSystem.contro
 
 import com.zliangcheng.PharmaSupplyChainAndPrescriptionFulfillmentSystem.application.PrescriptionApplicationService;
 import com.zliangcheng.PharmaSupplyChainAndPrescriptionFulfillmentSystem.controller.request.CreatePrescriptionRequest;
+import com.zliangcheng.PharmaSupplyChainAndPrescriptionFulfillmentSystem.controller.response.PrescriptionResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -12,8 +13,8 @@ public class PrescriptionController {
     private final PrescriptionApplicationService applicationService;
 
     @PostMapping("/")
-    public void createPrescription(@RequestBody CreatePrescriptionRequest request) {
-        applicationService.create(request);
+    public PrescriptionResponse createPrescription(@RequestBody CreatePrescriptionRequest request) {
+        return applicationService.create(request);
     }
 
     @PostMapping("/{id}/fulfill")

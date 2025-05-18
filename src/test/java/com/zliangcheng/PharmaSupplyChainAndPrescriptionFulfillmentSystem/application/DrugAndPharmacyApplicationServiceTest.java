@@ -38,9 +38,7 @@ class DrugAndPharmacyApplicationServiceTest {
         // given
         when(drugRepository.findByName("testName")).thenReturn(Optional.empty());
         AddDrugRequest request = new AddDrugRequest("testName", "manufacturer", "N110", LocalDate.now(), 50);
-        when(drugRepository.save(any(Drug.class))).thenAnswer(invocation -> {
-            return invocation.<Drug>getArgument(0);
-        });
+        when(drugRepository.save(any(Drug.class))).thenAnswer(invocation -> invocation.<Drug>getArgument(0));
         // when
         AddDrugsResponse res = drugAndPharmacyApplicationService.addDrugs(request);
         // then

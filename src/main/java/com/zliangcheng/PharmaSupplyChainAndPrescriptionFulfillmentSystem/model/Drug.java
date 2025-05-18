@@ -1,6 +1,8 @@
 package com.zliangcheng.PharmaSupplyChainAndPrescriptionFulfillmentSystem.model;
 
 import com.zliangcheng.PharmaSupplyChainAndPrescriptionFulfillmentSystem.controller.request.AddDrugRequest;
+import com.zliangcheng.PharmaSupplyChainAndPrescriptionFulfillmentSystem.exception.DrugExpiryException;
+import com.zliangcheng.PharmaSupplyChainAndPrescriptionFulfillmentSystem.exception.DrugInsufficientStockException;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -47,5 +49,18 @@ public class Drug {
         Integer curStock = getStock();
         curStock += stock;
         setStock(curStock);
+    }
+
+    public boolean isWithinExpiryDate() {
+        return LocalDate.now().isBefore(expiryDate);
+    }
+
+    public void validateDrug(Integer quantity) {
+        if (!isWithinExpiryDate()) {
+            throw new DrugExpiryException(id, expiryDate);
+        }
+        if (stock < quantity) {
+            throw new DrugInsufficientStockException(id);
+        }
     }
 }

@@ -44,4 +44,8 @@ public class Prescription {
     public void fulfill() {
         this.status = PrescriptionStatus.PROCESSED;
     }
+
+    public void invalid() {
+        this.status = PrescriptionStatus.REJECTED;
+    }
 }
