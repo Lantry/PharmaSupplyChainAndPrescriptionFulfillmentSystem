@@ -1,6 +1,7 @@
 package com.zliangcheng.PharmaSupplyChainAndPrescriptionFulfillmentSystem.application;
 
 import com.zliangcheng.PharmaSupplyChainAndPrescriptionFulfillmentSystem.controller.request.AddDrugRequest;
+import com.zliangcheng.PharmaSupplyChainAndPrescriptionFulfillmentSystem.controller.response.AddDrugsResponse;
 import com.zliangcheng.PharmaSupplyChainAndPrescriptionFulfillmentSystem.controller.response.PharmacyInfoResponse;
 import com.zliangcheng.PharmaSupplyChainAndPrescriptionFulfillmentSystem.model.Drug;
 import com.zliangcheng.PharmaSupplyChainAndPrescriptionFulfillmentSystem.model.Pharmacy;
@@ -19,9 +20,12 @@ public class DrugAndPharmacyApplicationService {
     private final DrugRepository drugRepository;
     private final PharmacyRepository pharmacyRepository;
 
-    public void addDrugs(AddDrugRequest request) {
-        Drug drug = Drug.from(request);
-        drugRepository.save(drug);
+    public AddDrugsResponse addDrugs(AddDrugRequest request) {
+        String drugName = request.getName();
+        Drug drug = drugRepository.findByName(drugName).orElse(Drug.from(request));
+        drug.addStock(request.getStock());
+        Drug save = drugRepository.save(drug);
+        return new AddDrugsResponse(save.getName(), save.getStock());
     }
 
     public List<PharmacyInfoResponse> listPharmacies() {

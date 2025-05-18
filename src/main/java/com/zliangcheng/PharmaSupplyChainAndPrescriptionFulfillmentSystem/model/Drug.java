@@ -39,7 +39,13 @@ public class Drug {
         drug.setManufacturer(request.getManufacturer());
         drug.setBatchNumber(request.getBatchNumber());
         drug.setExpiryDate(request.getExpiryDate());
-        drug.setStock(request.getStock());
+        drug.setStock(0);
         return drug;
+    }
+
+    public void addStock(Integer stock) {
+        Integer curStock = getStock();
+        curStock += stock;
+        setStock(curStock);
     }
 }
